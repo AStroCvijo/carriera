@@ -2,6 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
+.DS_Store
 
 # C extensions
 *.so
@@ -202,6 +203,17 @@ cython_debug/
 # .vscode/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
+
+# Android / Gradle
+.gradle/
+.idea/
+local.properties
+captures/
+*.iml
+app/build/
+build/
+app/src/main/font_sources/
+app/src/main/res/font/*.ttf
 
 # Ruff stuff:
 .ruff_cache/
