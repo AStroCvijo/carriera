@@ -59,7 +59,7 @@ public final class ApplicationManagerScreen {
             }
         });
 
-        return AppViews.screen(activity, "App Manager", () -> navigator.showApplicationManager(ApplicationFilter.ALL), content);
+        return AppViews.screen(activity, "App Manager", AppViews::goHome, content);
     }
 
     private static void renderResults(
