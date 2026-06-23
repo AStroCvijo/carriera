@@ -38,5 +38,9 @@ public interface AccountNavigator {
 
     void showCvManager(boolean onboarding);
 
+    void uploadCv(boolean onboarding);
+
+    void openCv();
+
     void finishOnboarding();
 }

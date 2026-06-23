@@ -1,10 +1,16 @@
 package com.example.carriera;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.widget.Toast;
 
 import com.example.carriera.account.data.AccountStore;
+import com.example.carriera.account.model.UserProfile;
 import com.example.carriera.account.navigation.AccountNavigator;
 import com.example.carriera.account.screens.BasicInfoScreen;
 import com.example.carriera.account.screens.CvManagerScreen;
@@ -30,10 +36,12 @@ import com.example.carriera.applications.screens.ReminderScreen;
 import com.example.carriera.applications.screens.StatusScreen;
 
 public class MainActivity extends Activity implements ApplicationNavigator, AccountNavigator {
+    private static final int REQUEST_CV = 1001;
     private ApplicationStore store;
     private AccountStore accountStore;
     private String currentApplicationId;
     private Runnable currentBack;
+    private boolean cvOnboarding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +172,98 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
     public void showCvManager(boolean onboarding) {
         currentBack = onboarding ? () -> showJobPrefs(true) : this::showProfile;
         setContentView(CvManagerScreen.create(this, accountStore.profile(), this, onboarding, false));
+    }
+
+    @Override
+    public void uploadCv(boolean onboarding) {
+        cvOnboarding = onboarding;
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        });
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        try {
+            startActivityForResult(intent, REQUEST_CV);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No file picker available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void openCv() {
+        UserProfile profile = accountStore.profile();
+        if (profile.cvUri == null || profile.cvUri.isEmpty()) {
+            Toast.makeText(this, "No CV uploaded yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(profile.cvUri));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No app can open this file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQUEST_CV) {
+            return;
+        }
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            return; // user cancelled
+        }
+        Uri uri = data.getData();
+        String name = queryDisplayName(uri);
+        long size = querySize(uri);
+        String lower = name == null ? "" : name.toLowerCase();
+        boolean validType = lower.endsWith(".pdf") || lower.endsWith(".doc") || lower.endsWith(".docx");
+        boolean validSize = size <= 5 * 1024 * 1024; // 5 MB limit
+        UserProfile profile = accountStore.profile();
+        if (!validType || !validSize) {
+            setContentView(com.example.carriera.account.screens.CvManagerScreen.create(this, profile, this, cvOnboarding, true));
+            return;
+        }
+        try {
+            getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (SecurityException ignored) {
+        }
+        profile.cvUploaded = true;
+        profile.cvUri = uri.toString();
+        profile.cvFileName = name;
+        setContentView(com.example.carriera.account.screens.CvManagerScreen.create(this, profile, this, cvOnboarding, false));
+    }
+
+    private String queryDisplayName(Uri uri) {
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (index >= 0) {
+                    return cursor.getString(index);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private long querySize(Uri uri) {
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int index = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (index >= 0 && !cursor.isNull(index)) {
+                    return cursor.getLong(index);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 
     @Override

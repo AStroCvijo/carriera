@@ -45,6 +45,7 @@ public class UserProfile {
     // CV
     public boolean cvUploaded = false;
     public String cvFileName = "";
+    public String cvUri = "";
 
     public String fullName() {
         return (firstName + " " + lastName).trim();

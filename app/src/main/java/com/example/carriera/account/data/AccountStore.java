@@ -60,8 +60,8 @@ public class AccountStore {
         profile.fieldOfStudy = "Software Engineering";
         profile.industryOfInterest = "IT";
 
-        profile.cvUploaded = true;
-        profile.cvFileName = "john_smith_cv.pdf";
+        profile.cvUploaded = false;
+        profile.cvFileName = "";
         return store;
     }
 

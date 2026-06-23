@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.carriera.R;
 import com.example.carriera.account.model.UserProfile;
@@ -21,24 +21,23 @@ public final class CvManagerScreen {
 
         if (!profile.cvUploaded) {
             Button upload = AppViews.uploadButton(activity, "Upload CV", R.drawable.ic_upload);
-            upload.setOnClickListener(v -> {
-                profile.cvUploaded = true;
-                profile.cvFileName = "my_cv.pdf";
-                activity.setContentView(create(activity, profile, navigator, onboarding, false));
-            });
+            upload.setOnClickListener(v -> navigator.uploadCv(onboarding));
             content.addView(upload, AppViews.lp(activity, -1, 50, 0, 0, 0, 0));
         } else {
             content.addView(AppViews.successCard(activity,
                     "All information from CV extracted and user profile updated"),
-                    AppViews.lp(activity, -1, -2, 0, 0, 0, 22));
+                    AppViews.lp(activity, -1, -2, 0, 0, 0, 16));
+
+            TextView fileName = AppViews.body(activity, "File: " + profile.cvFileName);
+            content.addView(fileName, AppViews.lp(activity, -1, -2, 0, 0, 0, 18));
 
             LinearLayout row = AppViews.row(activity);
             Button current = AppViews.uploadButton(activity, "Current CV", R.drawable.ic_download);
-            current.setOnClickListener(v -> Toast.makeText(activity, profile.cvFileName, Toast.LENGTH_SHORT).show());
+            current.setOnClickListener(v -> navigator.openCv());
             row.addView(current, new LinearLayout.LayoutParams(0, AppViews.dp(activity, 50), 1));
             row.addView(new View(activity), new LinearLayout.LayoutParams(AppViews.dp(activity, 16), 1));
             Button upload = AppViews.uploadButton(activity, "Upload CV", R.drawable.ic_upload);
-            upload.setOnClickListener(v -> Toast.makeText(activity, "New CV uploaded", Toast.LENGTH_SHORT).show());
+            upload.setOnClickListener(v -> navigator.uploadCv(onboarding));
             row.addView(upload, new LinearLayout.LayoutParams(0, AppViews.dp(activity, 50), 1));
             content.addView(row, AppViews.lp(activity, -1, -2, 0, 0, 0, 0));
         }
