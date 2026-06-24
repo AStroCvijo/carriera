@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,7 @@ public final class AppViews {
         view.setTypeface(comicReliefBold(activity));
         view.setGravity(Gravity.CENTER);
         view.setSingleLine(true);
+        view.setEllipsize(TextUtils.TruncateAt.END);
         return view;
     }
 
@@ -542,11 +544,11 @@ public final class AppViews {
         header.addView(back, backParams);
 
         TextView titleView = title(activity, title);
-        titleView.setSingleLine(true);
         titleView.setTextSize(title.length() > 16 ? 18 : 24);
         FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER);
-        titleParams.leftMargin = dp(activity, 112);
-        titleParams.rightMargin = dp(activity, 52);
+        int titleSideInset = dp(activity, 112);
+        titleParams.leftMargin = titleSideInset;
+        titleParams.rightMargin = titleSideInset;
         header.addView(titleView, titleParams);
 
         ImageView icon = new ImageView(activity);

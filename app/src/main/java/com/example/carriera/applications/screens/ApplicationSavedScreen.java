@@ -28,8 +28,8 @@ public final class ApplicationSavedScreen {
                 "Position: " + draft.position
                         + "\nCompany: " + draft.company
                         + "\nStatus: Sent"
-                        + "\nDate: 21.05.2026."
-                        + "\nNext step: Wait for company response",
+                        + "\nDate: " + draft.submittedAppliedDate()
+                        + "\nNext step: " + draft.submittedNextStep(),
                 12,
                 false), AppViews.lp(activity, -1, -2, 0, 10, 0, 0));
         content.addView(card, AppViews.lp(activity, -1, -2, 0, 0, 0, 0));
@@ -37,16 +37,16 @@ public final class ApplicationSavedScreen {
         content.addView(GenerationViews.flexibleSpacer(activity, 46));
 
         content.addView(GenerationViews.sectionLabel(activity, "Submitted documents:"), AppViews.lp(activity, -1, -2, 10, 0, 10, 14));
-        content.addView(GenerationViews.horizontalSubmittedDocuments(activity, draft), AppViews.lp(activity, -1, 32, 10, 0, 10, 0));
+        content.addView(GenerationViews.horizontalSubmittedDocuments(activity, draft), AppViews.lp(activity, -1, 36, 10, 0, 10, 0));
 
         content.addView(GenerationViews.flexibleSpacer(activity, 52));
 
         LinearLayout actions = AppViews.row(activity);
         actions.setGravity(Gravity.CENTER);
-        Button openTracking = GenerationViews.button(activity, "Open application tracking");
+        Button openTracking = GenerationViews.primaryButton(activity, "Open application tracking");
         openTracking.setOnClickListener(v -> navigator.openGeneratedApplicationTracking());
-        actions.addView(openTracking, new LinearLayout.LayoutParams(AppViews.dp(activity, 196), AppViews.dp(activity, 34)));
-        content.addView(actions, AppViews.lp(activity, -1, 34, 0, 0, 0, 8));
+        actions.addView(openTracking, new LinearLayout.LayoutParams(AppViews.dp(activity, 244), AppViews.dp(activity, 46)));
+        content.addView(actions, AppViews.lp(activity, -1, 46, 0, 0, 0, 10));
 
         return GenerationViews.screen(activity, "Application", navigator::showDocumentsGenerated, content);
     }

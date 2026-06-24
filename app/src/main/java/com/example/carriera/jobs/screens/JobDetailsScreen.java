@@ -64,7 +64,7 @@ public final class JobDetailsScreen {
             content.addView(complete, AppViews.lp(activity, -1, 44, 46, 0, 46, 0));
         } else {
             Button generate = AppViews.bottomButton(activity, "Generate application");
-            generate.setOnClickListener(v -> navigator.showGenerateApplication());
+            generate.setOnClickListener(v -> navigator.showGenerateApplication(job.id));
             content.addView(generate, AppViews.lp(activity, -1, 44, 8, 0, 8, 8));
 
             TextView save = JobUi.text(activity, "Save job", 10, true);

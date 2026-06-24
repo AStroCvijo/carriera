@@ -34,6 +34,8 @@ public interface ApplicationNavigator {
 
     void showGenerateApplication();
 
+    void showGenerateApplication(String jobId);
+
     void generateDocuments(boolean includeTailoredCv, boolean includeCoverLetter, String additionalNote);
 
     void showDocumentsGenerated();

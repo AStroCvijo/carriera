@@ -41,6 +41,7 @@ import com.example.carriera.applications.screens.InterviewSimulationScreen;
 import com.example.carriera.applications.screens.ReminderScreen;
 import com.example.carriera.applications.screens.StatusScreen;
 import com.example.carriera.jobs.data.RecommendedJobStore;
+import com.example.carriera.jobs.model.RecommendedJob;
 import com.example.carriera.jobs.screens.JobDetailsScreen;
 import com.example.carriera.jobs.screens.LearningResourcesScreen;
 import com.example.carriera.jobs.screens.MatchAnalysisScreen;
@@ -48,6 +49,7 @@ import com.example.carriera.jobs.screens.RecommendedJobsScreen;
 
 public class MainActivity extends Activity implements ApplicationNavigator, AccountNavigator {
     private static final int REQUEST_CV = 1001;
+    private static final String DEFAULT_INTERVIEW_APPLICATION_ID = "java-levi9";
     private ApplicationStore store;
     private AccountStore accountStore;
     private RecommendedJobStore jobStore;
@@ -139,7 +141,16 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
                 this,
                 () -> showApplicationManager(ApplicationFilter.ALL),
                 () -> showRecommendedJobs("All"),
-                () -> Toast.makeText(this, "Open an application to prepare for its interview", Toast.LENGTH_SHORT).show()));
+                this::showDefaultInterviewPreparation));
+    }
+
+    private void showDefaultInterviewPreparation() {
+        try {
+            store.require(DEFAULT_INTERVIEW_APPLICATION_ID);
+            showInterviewPrep(DEFAULT_INTERVIEW_APPLICATION_ID);
+        } catch (IllegalArgumentException ignored) {
+            showApplicationManager(ApplicationFilter.ALL);
+        }
     }
 
     @Override
@@ -391,16 +402,20 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
         setContentView(InterviewSimulationScreen.create(this, store.require(applicationId), this));
     }
 
-    private void startGenerateApplication() {
-        currentDraft = ApplicationDraft.demo();
-        showGenerateApplication();
-    }
-
     @Override
     public void showGenerateApplication() {
         currentApplicationId = null;
         ensureDraft();
         currentBack = this::showHomeLoggedIn;
+        setContentView(GenerateApplicationScreen.create(this, currentDraft, this));
+    }
+
+    @Override
+    public void showGenerateApplication(String jobId) {
+        RecommendedJob job = jobStore.require(jobId);
+        currentApplicationId = null;
+        currentDraft = ApplicationDraft.fromRecommendedJob(job);
+        currentBack = () -> showRecommendedJobDetails(jobId);
         setContentView(GenerateApplicationScreen.create(this, currentDraft, this));
     }
 
