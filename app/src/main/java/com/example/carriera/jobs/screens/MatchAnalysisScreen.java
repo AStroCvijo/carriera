@@ -41,7 +41,7 @@ public final class MatchAnalysisScreen {
         content.addView(resources, AppViews.lp(activity, -1, 42, 72, 0, 16, 10));
 
         Button generate = AppViews.bottomButton(activity, "Generate application");
-        generate.setOnClickListener(v -> navigator.showGenerateApplication());
+        generate.setOnClickListener(v -> navigator.showGenerateApplication(job.id));
         content.addView(generate, AppViews.lp(activity, -1, 44, 72, 0, 16, 0));
 
         return AppViews.screen(activity, "Match analysis", () -> navigator.showRecommendedJobDetails(job.id), content);

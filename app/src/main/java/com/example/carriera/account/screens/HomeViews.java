@@ -3,6 +3,7 @@ package com.example.carriera.account.screens;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -31,9 +32,15 @@ final class HomeViews {
         title.setTypeface(android.graphics.Typeface.createFromAsset(activity.getAssets(), "fonts/comic_relief_bold.ttf"));
         title.setBackgroundColor(Color.TRANSPARENT);
         title.setGravity(Gravity.CENTER);
+        title.setSingleLine(true);
+        title.setEllipsize(TextUtils.TruncateAt.END);
         title.setClickable(false);
         title.setFocusable(false);
-        bar.addView(title, new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER));
+        FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER);
+        int titleSideInset = AppViews.dp(activity, loggedIn ? 94 : 48);
+        titleParams.leftMargin = titleSideInset;
+        titleParams.rightMargin = titleSideInset;
+        bar.addView(title, titleParams);
 
         if (loggedIn) {
             ImageView avatar = new ImageView(activity);

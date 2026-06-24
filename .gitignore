@@ -228,3 +228,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local design references
+design/carriera_figma_screens/

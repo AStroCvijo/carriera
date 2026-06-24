@@ -25,29 +25,29 @@ public final class GenerateApplicationScreen {
         boolean[] includeLetter = {draft.includeCoverLetter};
         LinearLayout documentRows = AppViews.row(activity);
         documentRows.setGravity(Gravity.CENTER_VERTICAL);
-        documentRows.addView(GenerationViews.checkRow(activity, "Tailored CV", includeCv), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 30), 1));
-        documentRows.addView(GenerationViews.checkRow(activity, "Cover letter", includeLetter), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 30), 1));
-        content.addView(documentRows, AppViews.lp(activity, -1, 30, 10, 0, 10, 28));
+        documentRows.addView(GenerationViews.checkRow(activity, "Tailored CV", includeCv), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 36), 1));
+        documentRows.addView(GenerationViews.checkRow(activity, "Cover letter", includeLetter), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 36), 1));
+        content.addView(documentRows, AppViews.lp(activity, -1, 36, 10, 0, 10, 28));
 
         content.addView(GenerationViews.sectionLabel(activity, "Focus areas:"), AppViews.lp(activity, -1, -2, 10, 0, 10, 12));
-        content.addView(GenerationViews.focusChips(activity, draft), AppViews.lp(activity, -1, 24, 10, 0, 10, 28));
+        content.addView(GenerationViews.focusChips(activity, draft), AppViews.lp(activity, -1, 28, 10, 0, 10, 28));
 
         content.addView(GenerationViews.sectionLabel(activity, "Additional note:"), AppViews.lp(activity, -1, -2, 10, 0, 10, 12));
         EditText note = GenerationViews.noteInput(activity, draft.additionalNote);
-        content.addView(note, AppViews.lp(activity, -1, 58, 10, 0, 10, 0));
+        content.addView(note, AppViews.lp(activity, -1, 66, 10, 0, 10, 0));
 
         content.addView(GenerationViews.flexibleSpacer(activity, 26));
 
         LinearLayout actions = AppViews.row(activity);
         actions.setGravity(Gravity.CENTER);
-        Button generate = GenerationViews.button(activity, "Generate documents");
+        Button generate = GenerationViews.primaryButton(activity, "Generate documents");
         generate.setOnClickListener(v -> navigator.generateDocuments(
                 includeCv[0],
                 includeLetter[0],
                 note.getText().toString()
         ));
-        actions.addView(generate, new LinearLayout.LayoutParams(AppViews.dp(activity, 164), AppViews.dp(activity, 34)));
-        content.addView(actions, AppViews.lp(activity, -1, 34, 0, 8, 0, 8));
+        actions.addView(generate, new LinearLayout.LayoutParams(AppViews.dp(activity, 208), AppViews.dp(activity, 46)));
+        content.addView(actions, AppViews.lp(activity, -1, 46, 0, 8, 0, 10));
 
         return GenerationViews.screen(activity, "Application", GenerationViews::scrollHome, content);
     }

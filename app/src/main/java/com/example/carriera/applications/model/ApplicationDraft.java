@@ -1,5 +1,8 @@
 package com.example.carriera.applications.model;
 
+import com.example.carriera.jobs.model.RecommendedJob;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,6 +59,49 @@ public class ApplicationDraft {
         );
     }
 
+    public static ApplicationDraft fromRecommendedJob(RecommendedJob job) {
+        return new ApplicationDraft(
+                job.id,
+                job.title,
+                job.company,
+                job.matchPercent,
+                job.deadline,
+                focusAreasFrom(job),
+                true,
+                true,
+                "Emphasize my React project and teamwork experience."
+        );
+    }
+
+    private static List<String> focusAreasFrom(RecommendedJob job) {
+        List<String> areas = new ArrayList<>();
+        addFocusAreas(areas, job.skillsYouHave);
+        if (areas.isEmpty()) {
+            addFocusAreas(areas, job.requiredSkills);
+        }
+        if (areas.isEmpty()) {
+            areas.add("Java");
+            areas.add("Teamwork");
+            areas.add("Student projects");
+        }
+        return areas;
+    }
+
+    private static void addFocusAreas(List<String> areas, String[] values) {
+        if (values == null) {
+            return;
+        }
+        for (String value : values) {
+            if (value == null || value.trim().isEmpty()) {
+                continue;
+            }
+            areas.add(value.trim());
+            if (areas.size() == 3) {
+                return;
+            }
+        }
+    }
+
     public void generateSelectedDocuments() {
         if (includeTailoredCv) {
             generatedCv = buildCv();
@@ -92,12 +138,21 @@ public class ApplicationDraft {
         return "Choose a document to generate before submitting.";
     }
 
+    public String submittedAppliedDate() {
+        return "21.05.2026.";
+    }
+
+    public String submittedNextStep() {
+        return "Wait for company response";
+    }
+
     private String buildCv() {
-        return "Marko Petrovi\u0107 - Junior Java Developer\n\n"
+        return "Marko Petrovi\u0107 - " + position + "\n\n"
                 + "Final year IT student with basic experience in Java, SQL and team projects.\n\n"
                 + "Relevant skills\n"
-                + "Java, SQL, Git, OOP, Teamwork, React\n\n"
+                + skillsText() + "\n\n"
                 + "Student project: Web application for tracking job applications.\n\n"
+                + "Target company: " + company + "\n\n"
                 + "Faculty of Technical Sciences, Information Technologies";
     }
 
@@ -111,11 +166,29 @@ public class ApplicationDraft {
                     + note;
         }
         return "Dear hiring team,\n\n"
-                + "I am applying for the Junior Java Developer position at Levi9.\n\n"
+                + "I am applying for the " + position + " position at " + company + ".\n\n"
                 + profileSentence + "\n\n"
                 + "I am interested in contributing to your team and continuing to develop as a junior engineer.\n\n"
                 + "Sincerely,\n"
                 + "Marko Petrovi\u0107";
+    }
+
+    private String skillsText() {
+        if (focusAreas == null || focusAreas.isEmpty()) {
+            return "Java, SQL, Git, OOP, Teamwork";
+        }
+        StringBuilder builder = new StringBuilder("Java, SQL, Git, OOP");
+        for (String area : focusAreas) {
+            if (area == null || area.trim().isEmpty()) {
+                continue;
+            }
+            String trimmed = area.trim();
+            if (builder.toString().contains(trimmed)) {
+                continue;
+            }
+            builder.append(", ").append(trimmed);
+        }
+        return builder.toString();
     }
 
     private String cleanNote() {

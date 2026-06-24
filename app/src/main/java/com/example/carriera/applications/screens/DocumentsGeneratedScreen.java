@@ -48,30 +48,38 @@ public final class DocumentsGeneratedScreen {
         if (draft.includeTailoredCv && draft.includeCoverLetter) {
             LinearLayout reviewButtons = AppViews.row(activity);
             reviewButtons.setGravity(Gravity.CENTER);
-            Button cv = GenerationViews.button(activity, "View CV");
+            Button cv = GenerationViews.secondaryButton(activity, "View CV");
             cv.setOnClickListener(v -> navigator.showCvPreview());
-            reviewButtons.addView(cv, new LinearLayout.LayoutParams(AppViews.dp(activity, 100), AppViews.dp(activity, 32)));
-            reviewButtons.addView(GenerationViews.gap(activity, 10), new LinearLayout.LayoutParams(AppViews.dp(activity, 10), 1));
-            Button letter = GenerationViews.button(activity, "View cover letter");
+            reviewButtons.addView(cv, new LinearLayout.LayoutParams(AppViews.dp(activity, 112), AppViews.dp(activity, 42)));
+            reviewButtons.addView(GenerationViews.gap(activity, 12), new LinearLayout.LayoutParams(AppViews.dp(activity, 12), 1));
+            Button letter = GenerationViews.secondaryButton(activity, "View cover letter");
             letter.setOnClickListener(v -> navigator.showCoverLetterPreview());
-            reviewButtons.addView(letter, new LinearLayout.LayoutParams(AppViews.dp(activity, 124), AppViews.dp(activity, 32)));
-            content.addView(reviewButtons, AppViews.lp(activity, -1, 32, 0, 0, 0, 14));
+            reviewButtons.addView(letter, new LinearLayout.LayoutParams(AppViews.dp(activity, 152), AppViews.dp(activity, 42)));
+            content.addView(reviewButtons, AppViews.lp(activity, -1, 42, 0, 0, 0, 16));
         } else if (draft.includeTailoredCv) {
-            content.addView(singleButtonRow(activity, "View CV", navigator::showCvPreview, 100), AppViews.lp(activity, -1, 32, 0, 0, 0, 14));
+            content.addView(secondaryButtonRow(activity, "View CV", navigator::showCvPreview, 112), AppViews.lp(activity, -1, 42, 0, 0, 0, 16));
         } else if (draft.includeCoverLetter) {
-            content.addView(singleButtonRow(activity, "View cover letter", navigator::showCoverLetterPreview, 124), AppViews.lp(activity, -1, 32, 0, 0, 0, 14));
+            content.addView(secondaryButtonRow(activity, "View cover letter", navigator::showCoverLetterPreview, 152), AppViews.lp(activity, -1, 42, 0, 0, 0, 16));
         }
 
-        content.addView(singleButtonRow(activity, "Submit application", navigator::submitGeneratedApplication, 150), AppViews.lp(activity, -1, 34, 0, 0, 0, 8));
+        content.addView(primaryButtonRow(activity, "Submit application", navigator::submitGeneratedApplication, 190), AppViews.lp(activity, -1, 46, 0, 0, 0, 10));
         return GenerationViews.screen(activity, "Application", navigator::showGenerateApplication, content);
     }
 
-    private static LinearLayout singleButtonRow(Activity activity, String text, Runnable action, int width) {
+    private static LinearLayout primaryButtonRow(Activity activity, String text, Runnable action, int width) {
+        return buttonRow(activity, text, action, width, 46, true);
+    }
+
+    private static LinearLayout secondaryButtonRow(Activity activity, String text, Runnable action, int width) {
+        return buttonRow(activity, text, action, width, 42, false);
+    }
+
+    private static LinearLayout buttonRow(Activity activity, String text, Runnable action, int width, int height, boolean primary) {
         LinearLayout row = AppViews.row(activity);
         row.setGravity(Gravity.CENTER);
-        Button button = GenerationViews.button(activity, text);
+        Button button = primary ? GenerationViews.primaryButton(activity, text) : GenerationViews.secondaryButton(activity, text);
         button.setOnClickListener(v -> action.run());
-        row.addView(button, new LinearLayout.LayoutParams(AppViews.dp(activity, width), AppViews.dp(activity, 34)));
+        row.addView(button, new LinearLayout.LayoutParams(AppViews.dp(activity, width), AppViews.dp(activity, height)));
         return row;
     }
 }

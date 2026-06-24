@@ -90,10 +90,10 @@ public class ApplicationStore {
                 draft.position,
                 draft.company,
                 ApplicationStatus.SENT,
-                "21.05.2026.",
-                "25.05.",
-                "Application saved successfully.\nSubmitted documents: " + documents,
-                "Application submitted through Carriera.\nNext step: Wait for company response."
+                draft.submittedAppliedDate(),
+                draft.deadline,
+                "Application saved successfully.\nSubmitted documents: " + documents + additionalNote(draft),
+                "Application submitted through Carriera.\nNext step: " + draft.submittedNextStep() + "."
         );
         for (int i = 0; i < applications.size(); i++) {
             TrackedApplication existing = applications.get(i);
@@ -104,6 +104,13 @@ public class ApplicationStore {
             }
         }
         applications.add(updated);
+    }
+
+    private String additionalNote(ApplicationDraft draft) {
+        if (draft.additionalNote == null || draft.additionalNote.trim().isEmpty()) {
+            return "";
+        }
+        return "\nNote: " + draft.additionalNote.trim();
     }
 
     private String submittedDocuments(ApplicationDraft draft) {

@@ -23,7 +23,7 @@ public final class CvPreviewScreen {
         content.addView(GenerationViews.jobCard(activity, draft), AppViews.lp(activity, -1, -2, 0, 0, 0, 24));
         content.addView(GenerationViews.sectionLabel(activity, "Generated CV:"), AppViews.lp(activity, -1, -2, 10, 0, 10, 10));
 
-        EditText preview = GenerationViews.editablePreviewBox(activity, draft.generatedCv, 9, 8);
+        EditText preview = GenerationViews.editablePreviewBox(activity, draft.generatedCv, 12, 8);
         preview.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -48,10 +48,10 @@ public final class CvPreviewScreen {
 
         LinearLayout actions = AppViews.row(activity);
         actions.setGravity(Gravity.CENTER);
-        Button update = GenerationViews.button(activity, "Update CV");
+        Button update = GenerationViews.primaryButton(activity, "Update CV");
         update.setOnClickListener(v -> navigator.updateGeneratedCv(preview.getText().toString()));
-        actions.addView(update, new LinearLayout.LayoutParams(AppViews.dp(activity, 96), AppViews.dp(activity, 34)));
-        content.addView(actions, AppViews.lp(activity, -1, 34, 0, 0, 0, 8));
+        actions.addView(update, new LinearLayout.LayoutParams(AppViews.dp(activity, 140), AppViews.dp(activity, 46)));
+        content.addView(actions, AppViews.lp(activity, -1, 46, 0, 0, 0, 10));
 
         return GenerationViews.screen(activity, "CV preview", navigator::showDocumentsGenerated, content);
     }

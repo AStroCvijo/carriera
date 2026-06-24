@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -69,19 +70,19 @@ public final class GenerationViews {
 
     public static LinearLayout jobCard(Activity activity, ApplicationDraft draft) {
         LinearLayout card = AppViews.column(activity);
-        card.setPadding(AppViews.dp(activity, 18), AppViews.dp(activity, 12), AppViews.dp(activity, 18), AppViews.dp(activity, 10));
+        card.setPadding(AppViews.dp(activity, 20), AppViews.dp(activity, 14), AppViews.dp(activity, 20), AppViews.dp(activity, 12));
         card.setBackground(round(activity, FIGMA_CARD, 16));
 
-        TextView position = text(activity, draft.position, 15, FIGMA_TEXT, true);
+        TextView position = text(activity, draft.position, 17, FIGMA_TEXT, true);
         card.addView(position);
-        TextView company = text(activity, draft.company, 12, FIGMA_TEXT, false);
+        TextView company = text(activity, draft.company, 13, FIGMA_TEXT, false);
         card.addView(company, AppViews.lp(activity, -1, -2, 0, 3, 0, 0));
 
         LinearLayout meta = AppViews.row(activity);
         meta.setGravity(Gravity.CENTER_VERTICAL);
-        TextView match = text(activity, "Match: " + draft.matchPercent + "%", 12, FIGMA_TEXT, false);
+        TextView match = text(activity, "Match: " + draft.matchPercent + "%", 13, FIGMA_TEXT, false);
         meta.addView(match, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView deadline = text(activity, "Deadline: " + draft.deadline, 12, FIGMA_TEXT, false);
+        TextView deadline = text(activity, "Deadline: " + draft.deadline, 13, FIGMA_TEXT, false);
         deadline.setGravity(Gravity.RIGHT);
         meta.addView(deadline, new LinearLayout.LayoutParams(0, -2, 1));
         card.addView(meta, AppViews.lp(activity, -1, -2, 0, 12, 0, 0));
@@ -95,9 +96,9 @@ public final class GenerationViews {
 
         ImageView box = new ImageView(activity);
         box.setImageResource(state[0] ? R.drawable.ic_checkbox_checked : R.drawable.ic_checkbox);
-        row.addView(box, new LinearLayout.LayoutParams(AppViews.dp(activity, 20), AppViews.dp(activity, 20)));
+        row.addView(box, new LinearLayout.LayoutParams(AppViews.dp(activity, 22), AppViews.dp(activity, 22)));
 
-        TextView label = text(activity, value, 13, FIGMA_TEXT, true);
+        TextView label = text(activity, value, 14, FIGMA_TEXT, true);
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(-2, -2);
         labelParams.leftMargin = AppViews.dp(activity, 8);
         row.addView(label, labelParams);
@@ -112,15 +113,15 @@ public final class GenerationViews {
     public static LinearLayout focusChips(Activity activity, ApplicationDraft draft) {
         LinearLayout row = AppViews.row(activity);
         row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        int[] widths = {76, 76, 106};
+        int[] widths = {88, 88, 120};
         for (int i = 0; i < draft.focusAreas.size(); i++) {
-            TextView chip = text(activity, draft.focusAreas.get(i), 11, FIGMA_TEXT, true);
+            TextView chip = text(activity, draft.focusAreas.get(i), 12, FIGMA_TEXT, true);
             chip.setGravity(Gravity.CENTER);
             chip.setSingleLine(true);
-            chip.setPadding(AppViews.dp(activity, 4), 0, AppViews.dp(activity, 4), 0);
-            chip.setBackground(round(activity, FIGMA_CARD, 10));
-            int width = i < widths.length ? widths[i] : 86;
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(AppViews.dp(activity, width), AppViews.dp(activity, 22));
+            chip.setPadding(AppViews.dp(activity, 8), 0, AppViews.dp(activity, 8), 0);
+            chip.setBackground(round(activity, FIGMA_CARD, 12));
+            int width = i < widths.length ? widths[i] : 96;
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(AppViews.dp(activity, width), AppViews.dp(activity, 26));
             if (i > 0) {
                 params.leftMargin = AppViews.dp(activity, 12);
             }
@@ -132,7 +133,7 @@ public final class GenerationViews {
     public static EditText noteInput(Activity activity, String value) {
         EditText input = new EditText(activity);
         input.setText(value == null ? "" : value);
-        input.setTextSize(11);
+        input.setTextSize(12);
         input.setTypeface(font(activity, false));
         input.setTextColor(FIGMA_TEXT);
         input.setHintTextColor(FIGMA_MUTED);
@@ -164,14 +165,14 @@ public final class GenerationViews {
     }
 
     public static TextView sectionLabel(Activity activity, String value) {
-        return text(activity, value, 13, FIGMA_TEXT, true);
+        return text(activity, value, 14, FIGMA_TEXT, true);
     }
 
     public static Button button(Activity activity, String value) {
         Button button = new Button(activity);
         button.setAllCaps(false);
         button.setText(value);
-        button.setTextSize(12);
+        button.setTextSize(13);
         button.setTypeface(font(activity, true));
         button.setTextColor(FIGMA_TEXT);
         button.setGravity(Gravity.CENTER);
@@ -180,11 +181,27 @@ public final class GenerationViews {
         button.setMinimumHeight(0);
         button.setMinWidth(0);
         button.setMinimumWidth(0);
-        button.setPadding(AppViews.dp(activity, 8), 0, AppViews.dp(activity, 8), 0);
-        button.setBackground(round(activity, FIGMA_CARD, 13));
+        button.setPadding(AppViews.dp(activity, 22), 0, AppViews.dp(activity, 22), 0);
+        button.setBackground(round(activity, FIGMA_CARD, 18));
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             button.setStateListAnimator(null);
         }
+        return button;
+    }
+
+    public static Button primaryButton(Activity activity, String value) {
+        Button button = button(activity, value);
+        button.setTextSize(14);
+        button.setPadding(AppViews.dp(activity, 32), 0, AppViews.dp(activity, 32), 0);
+        button.setBackground(round(activity, FIGMA_CARD, 22));
+        return button;
+    }
+
+    public static Button secondaryButton(Activity activity, String value) {
+        Button button = button(activity, value);
+        button.setTextSize(13);
+        button.setPadding(AppViews.dp(activity, 24), 0, AppViews.dp(activity, 24), 0);
+        button.setBackground(round(activity, FIGMA_CARD, 20));
         return button;
     }
 
@@ -204,8 +221,8 @@ public final class GenerationViews {
         row.setGravity(Gravity.CENTER_VERTICAL);
         ImageView icon = new ImageView(activity);
         icon.setImageResource(R.drawable.ic_check);
-        row.addView(icon, new LinearLayout.LayoutParams(AppViews.dp(activity, 20), AppViews.dp(activity, 20)));
-        TextView label = text(activity, value, 13, FIGMA_TEXT, true);
+        row.addView(icon, new LinearLayout.LayoutParams(AppViews.dp(activity, 22), AppViews.dp(activity, 22)));
+        TextView label = text(activity, value, 14, FIGMA_TEXT, true);
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(-2, -2);
         labelParams.leftMargin = AppViews.dp(activity, 8);
         row.addView(label, labelParams);
@@ -216,12 +233,12 @@ public final class GenerationViews {
         LinearLayout row = AppViews.row(activity);
         row.setGravity(Gravity.CENTER_VERTICAL);
         if (draft.includeTailoredCv && draft.includeCoverLetter) {
-            row.addView(submittedDocument(activity, "Tailored CV"), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 30), 1));
-            row.addView(submittedDocument(activity, "Cover letter"), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 30), 1));
+            row.addView(submittedDocument(activity, "Tailored CV"), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 34), 1));
+            row.addView(submittedDocument(activity, "Cover letter"), new LinearLayout.LayoutParams(0, AppViews.dp(activity, 34), 1));
         } else if (draft.includeTailoredCv) {
-            row.addView(submittedDocument(activity, "Tailored CV"), new LinearLayout.LayoutParams(-2, AppViews.dp(activity, 30)));
+            row.addView(submittedDocument(activity, "Tailored CV"), new LinearLayout.LayoutParams(-2, AppViews.dp(activity, 34)));
         } else if (draft.includeCoverLetter) {
-            row.addView(submittedDocument(activity, "Cover letter"), new LinearLayout.LayoutParams(-2, AppViews.dp(activity, 30)));
+            row.addView(submittedDocument(activity, "Cover letter"), new LinearLayout.LayoutParams(-2, AppViews.dp(activity, 34)));
         }
         return row;
     }
@@ -248,9 +265,11 @@ public final class GenerationViews {
         titleView.setTypeface(Typeface.createFromAsset(activity.getAssets(), "fonts/comic_relief_bold.ttf"));
         titleView.setGravity(Gravity.CENTER);
         titleView.setSingleLine(true);
+        titleView.setEllipsize(TextUtils.TruncateAt.END);
         FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER);
-        titleParams.leftMargin = AppViews.dp(activity, 54);
-        titleParams.rightMargin = AppViews.dp(activity, 54);
+        int titleSideInset = AppViews.dp(activity, 96);
+        titleParams.leftMargin = titleSideInset;
+        titleParams.rightMargin = titleSideInset;
         header.addView(titleView, titleParams);
 
         ImageView logo = new ImageView(activity);
