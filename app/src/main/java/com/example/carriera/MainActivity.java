@@ -40,11 +40,17 @@ import com.example.carriera.applications.screens.InterviewPrepScreen;
 import com.example.carriera.applications.screens.InterviewSimulationScreen;
 import com.example.carriera.applications.screens.ReminderScreen;
 import com.example.carriera.applications.screens.StatusScreen;
+import com.example.carriera.jobs.data.RecommendedJobStore;
+import com.example.carriera.jobs.screens.JobDetailsScreen;
+import com.example.carriera.jobs.screens.LearningResourcesScreen;
+import com.example.carriera.jobs.screens.MatchAnalysisScreen;
+import com.example.carriera.jobs.screens.RecommendedJobsScreen;
 
 public class MainActivity extends Activity implements ApplicationNavigator, AccountNavigator {
     private static final int REQUEST_CV = 1001;
     private ApplicationStore store;
     private AccountStore accountStore;
+    private RecommendedJobStore jobStore;
     private String currentApplicationId;
     private ApplicationDraft currentDraft;
     private Runnable currentBack;
@@ -55,6 +61,7 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
         super.onCreate(savedInstanceState);
         store = ApplicationStore.createDemoStore();
         accountStore = AccountStore.createDemoStore();
+        jobStore = RecommendedJobStore.createDemoStore();
         com.example.carriera.applications.ui.AppViews.setHomeAction(() -> {
             if (accountStore.isLoggedIn()) {
                 showHomeLoggedIn();
@@ -131,7 +138,7 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
                 this,
                 this,
                 () -> showApplicationManager(ApplicationFilter.ALL),
-                this::startGenerateApplication,
+                () -> showRecommendedJobs("All"),
                 () -> Toast.makeText(this, "Open an application to prepare for its interview", Toast.LENGTH_SHORT).show()));
     }
 
@@ -288,6 +295,52 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
         currentDraft = null;
         currentBack = this::showHomeLoggedIn;
         setContentView(ApplicationManagerScreen.create(this, store, filter, this));
+    }
+
+    @Override
+    public void showRecommendedJobs(String filter) {
+        currentApplicationId = null;
+        currentDraft = null;
+        currentBack = this::showHomeLoggedIn;
+        setContentView(RecommendedJobsScreen.create(this, jobStore, filter, this));
+    }
+
+    @Override
+    public void showRecommendedJobDetails(String jobId) {
+        currentApplicationId = null;
+        currentDraft = null;
+        currentBack = () -> showRecommendedJobs("All");
+        setContentView(JobDetailsScreen.create(this, jobStore.require(jobId), accountStore.profile(), this, this));
+    }
+
+    @Override
+    public void showMatchAnalysis(String jobId) {
+        UserProfile profile = accountStore.profile();
+        if (!profile.cvUploaded || !isProfileComplete(profile)) {
+            Toast.makeText(this, "Complete your CV and profile before match analysis", Toast.LENGTH_SHORT).show();
+            showRecommendedJobDetails(jobId);
+            return;
+        }
+        currentApplicationId = null;
+        currentDraft = null;
+        currentBack = () -> showRecommendedJobDetails(jobId);
+        setContentView(MatchAnalysisScreen.create(this, jobStore.require(jobId), this));
+    }
+
+    @Override
+    public void showMatchAnalysisError(String jobId) {
+        currentApplicationId = null;
+        currentDraft = null;
+        currentBack = () -> showRecommendedJobDetails(jobId);
+        setContentView(MatchAnalysisScreen.error(this, jobId, this));
+    }
+
+    @Override
+    public void showLearningResources(String jobId) {
+        currentApplicationId = null;
+        currentDraft = null;
+        currentBack = () -> showMatchAnalysis(jobId);
+        setContentView(LearningResourcesScreen.create(this, jobId, this));
     }
 
     @Override
@@ -459,6 +512,14 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
         if (currentDraft == null) {
             currentDraft = ApplicationDraft.demo();
         }
+    }
+
+    private boolean isProfileComplete(UserProfile profile) {
+        return !profile.technicalSkills.isEmpty()
+                && profile.location != null
+                && !profile.location.trim().isEmpty()
+                && profile.desiredPositions != null
+                && !profile.desiredPositions.trim().isEmpty();
     }
 
     @Override

@@ -6,6 +6,16 @@ import com.example.carriera.applications.model.ApplicationStatus;
 public interface ApplicationNavigator {
     void showApplicationManager(ApplicationFilter filter);
 
+    void showRecommendedJobs(String filter);
+
+    void showRecommendedJobDetails(String jobId);
+
+    void showMatchAnalysis(String jobId);
+
+    void showMatchAnalysisError(String jobId);
+
+    void showLearningResources(String jobId);
+
     void showApplicationDetails(String applicationId);
 
     void showStatusEditor(String applicationId);
