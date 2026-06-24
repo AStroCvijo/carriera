@@ -1,5 +1,6 @@
 package com.example.carriera.applications.data;
 
+import com.example.carriera.applications.model.ApplicationDraft;
 import com.example.carriera.applications.model.ApplicationFilter;
 import com.example.carriera.applications.model.ApplicationStatus;
 import com.example.carriera.applications.model.TrackedApplication;
@@ -80,6 +81,42 @@ public class ApplicationStore {
 
     public void updateStatus(String id, ApplicationStatus status) {
         require(id).status = status;
+    }
+
+    public void saveGeneratedApplication(ApplicationDraft draft) {
+        String documents = submittedDocuments(draft);
+        TrackedApplication updated = new TrackedApplication(
+                draft.applicationId,
+                draft.position,
+                draft.company,
+                ApplicationStatus.SENT,
+                "21.05.2026.",
+                "25.05.",
+                "Application saved successfully.\nSubmitted documents: " + documents,
+                "Application submitted through Carriera.\nNext step: Wait for company response."
+        );
+        for (int i = 0; i < applications.size(); i++) {
+            TrackedApplication existing = applications.get(i);
+            if (existing.id.equals(draft.applicationId)) {
+                updated.reminders.addAll(existing.reminders);
+                applications.set(i, updated);
+                return;
+            }
+        }
+        applications.add(updated);
+    }
+
+    private String submittedDocuments(ApplicationDraft draft) {
+        if (draft.includeTailoredCv && draft.includeCoverLetter) {
+            return "Tailored CV, Cover letter";
+        }
+        if (draft.includeTailoredCv) {
+            return "Tailored CV";
+        }
+        if (draft.includeCoverLetter) {
+            return "Cover letter";
+        }
+        return "None";
     }
 
     public void saveReminder(String id, String type, String dateTime, String note) {

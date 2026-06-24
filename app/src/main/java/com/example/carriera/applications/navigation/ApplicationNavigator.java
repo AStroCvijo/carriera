@@ -21,4 +21,22 @@ public interface ApplicationNavigator {
     void showInterviewExample(String applicationId, String question);
 
     void showInterviewSimulation(String applicationId);
+
+    void showGenerateApplication();
+
+    void generateDocuments(boolean includeTailoredCv, boolean includeCoverLetter, String additionalNote);
+
+    void showDocumentsGenerated();
+
+    void showCvPreview();
+
+    void showCoverLetterPreview();
+
+    void updateGeneratedCv(String content);
+
+    void updateGeneratedCoverLetter(String content);
+
+    void submitGeneratedApplication();
+
+    void openGeneratedApplicationTracking();
 }
