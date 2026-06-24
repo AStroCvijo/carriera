@@ -24,9 +24,15 @@ import com.example.carriera.account.screens.ProfileScreen;
 import com.example.carriera.account.screens.RegisterScreen;
 import com.example.carriera.account.screens.SkillsScreen;
 import com.example.carriera.applications.data.ApplicationStore;
+import com.example.carriera.applications.model.ApplicationDraft;
 import com.example.carriera.applications.model.ApplicationFilter;
 import com.example.carriera.applications.model.ApplicationStatus;
 import com.example.carriera.applications.navigation.ApplicationNavigator;
+import com.example.carriera.applications.screens.ApplicationSavedScreen;
+import com.example.carriera.applications.screens.CoverLetterPreviewScreen;
+import com.example.carriera.applications.screens.CvPreviewScreen;
+import com.example.carriera.applications.screens.DocumentsGeneratedScreen;
+import com.example.carriera.applications.screens.GenerateApplicationScreen;
 import com.example.carriera.applications.screens.ApplicationDetailsScreen;
 import com.example.carriera.applications.screens.ApplicationManagerScreen;
 import com.example.carriera.applications.screens.InterviewExampleScreen;
@@ -40,6 +46,7 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
     private ApplicationStore store;
     private AccountStore accountStore;
     private String currentApplicationId;
+    private ApplicationDraft currentDraft;
     private Runnable currentBack;
     private boolean cvOnboarding;
 
@@ -63,6 +70,7 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
     @Override
     public void showHome() {
         currentApplicationId = null;
+        currentDraft = null;
         currentBack = null;
         setContentView(HomeScreen.create(this, this));
     }
@@ -117,12 +125,13 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
     @Override
     public void showHomeLoggedIn() {
         currentApplicationId = null;
+        currentDraft = null;
         currentBack = null;
         setContentView(HomeLoggedInScreen.create(
                 this,
                 this,
                 () -> showApplicationManager(ApplicationFilter.ALL),
-                () -> Toast.makeText(this, "Find open positions is not part of this prototype", Toast.LENGTH_SHORT).show(),
+                this::startGenerateApplication,
                 () -> Toast.makeText(this, "Open an application to prepare for its interview", Toast.LENGTH_SHORT).show()));
     }
 
@@ -276,6 +285,7 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
     @Override
     public void showApplicationManager(ApplicationFilter filter) {
         currentApplicationId = null;
+        currentDraft = null;
         currentBack = this::showHomeLoggedIn;
         setContentView(ApplicationManagerScreen.create(this, store, filter, this));
     }
@@ -326,6 +336,129 @@ public class MainActivity extends Activity implements ApplicationNavigator, Acco
     public void showInterviewSimulation(String applicationId) {
         currentApplicationId = applicationId;
         setContentView(InterviewSimulationScreen.create(this, store.require(applicationId), this));
+    }
+
+    private void startGenerateApplication() {
+        currentDraft = ApplicationDraft.demo();
+        showGenerateApplication();
+    }
+
+    @Override
+    public void showGenerateApplication() {
+        currentApplicationId = null;
+        ensureDraft();
+        currentBack = this::showHomeLoggedIn;
+        setContentView(GenerateApplicationScreen.create(this, currentDraft, this));
+    }
+
+    @Override
+    public void generateDocuments(boolean includeTailoredCv, boolean includeCoverLetter, String additionalNote) {
+        ensureDraft();
+        currentDraft.includeTailoredCv = includeTailoredCv;
+        currentDraft.includeCoverLetter = includeCoverLetter;
+        currentDraft.additionalNote = additionalNote;
+        currentDraft.generateSelectedDocuments();
+        showDocumentsGenerated();
+    }
+
+    @Override
+    public void showDocumentsGenerated() {
+        showDocumentsGenerated(false);
+    }
+
+    private void showDocumentsGenerated(boolean showValidationWarning) {
+        currentApplicationId = null;
+        ensureDraft();
+        currentBack = this::showGenerateApplication;
+        setContentView(DocumentsGeneratedScreen.create(this, currentDraft, this, showValidationWarning));
+    }
+
+    @Override
+    public void showCvPreview() {
+        currentApplicationId = null;
+        ensureDraft();
+        currentBack = this::showDocumentsGenerated;
+        setContentView(CvPreviewScreen.create(this, currentDraft, this, false));
+    }
+
+    @Override
+    public void showCoverLetterPreview() {
+        currentApplicationId = null;
+        ensureDraft();
+        currentBack = this::showDocumentsGenerated;
+        setContentView(CoverLetterPreviewScreen.create(this, currentDraft, this, false));
+    }
+
+    @Override
+    public void updateGeneratedCv(String content) {
+        ensureDraft();
+        String trimmed = content == null ? "" : content.trim();
+        if (trimmed.isEmpty()) {
+            currentDraft.generatedCv = "";
+            currentApplicationId = null;
+            currentBack = this::showDocumentsGenerated;
+            setContentView(CvPreviewScreen.create(this, currentDraft, this, true));
+            return;
+        }
+        currentDraft.generatedCv = trimmed;
+        showDocumentsGenerated();
+    }
+
+    @Override
+    public void updateGeneratedCoverLetter(String content) {
+        ensureDraft();
+        String trimmed = content == null ? "" : content.trim();
+        if (trimmed.isEmpty()) {
+            currentDraft.generatedCoverLetter = "";
+            currentApplicationId = null;
+            currentBack = this::showDocumentsGenerated;
+            setContentView(CoverLetterPreviewScreen.create(this, currentDraft, this, true));
+            return;
+        }
+        currentDraft.generatedCoverLetter = trimmed;
+        showDocumentsGenerated();
+    }
+
+    @Override
+    public void submitGeneratedApplication() {
+        ensureDraft();
+        if (!currentDraft.includeTailoredCv && !currentDraft.includeCoverLetter) {
+            showDocumentsGenerated(true);
+            return;
+        }
+        if (currentDraft.includeTailoredCv && isEmpty(currentDraft.generatedCv)) {
+            currentApplicationId = null;
+            currentBack = this::showDocumentsGenerated;
+            setContentView(CvPreviewScreen.create(this, currentDraft, this, true));
+            return;
+        }
+        if (currentDraft.includeCoverLetter && isEmpty(currentDraft.generatedCoverLetter)) {
+            currentApplicationId = null;
+            currentBack = this::showDocumentsGenerated;
+            setContentView(CoverLetterPreviewScreen.create(this, currentDraft, this, true));
+            return;
+        }
+        store.saveGeneratedApplication(currentDraft);
+        currentDraft.submitted = true;
+        currentApplicationId = null;
+        currentBack = this::showDocumentsGenerated;
+        setContentView(ApplicationSavedScreen.create(this, currentDraft, this));
+    }
+
+    private boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    @Override
+    public void openGeneratedApplicationTracking() {
+        ensureDraft();
+        showApplicationDetails(currentDraft.applicationId);
+    }
+
+    private void ensureDraft() {
+        if (currentDraft == null) {
+            currentDraft = ApplicationDraft.demo();
+        }
     }
 
     @Override
