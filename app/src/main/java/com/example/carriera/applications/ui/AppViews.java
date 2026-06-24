@@ -542,8 +542,10 @@ public final class AppViews {
         header.addView(back, backParams);
 
         TextView titleView = title(activity, title);
+        titleView.setSingleLine(true);
+        titleView.setTextSize(title.length() > 16 ? 18 : 24);
         FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER);
-        titleParams.leftMargin = dp(activity, 52);
+        titleParams.leftMargin = dp(activity, 112);
         titleParams.rightMargin = dp(activity, 52);
         header.addView(titleView, titleParams);
 
